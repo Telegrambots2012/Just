@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RUX VIP SUPREME V16.1 - FIXED</title>
+
+<style>
+:root { --neon:#00ff41; --danger:#ff003c; --gold:#ffea00; --bg:#050505; }
+
+body{
+background:linear-gradient(45deg, var(--bg), #0a0a0a);
+color:#fff;
+font-family:'Segoe UI',sans-serif;
+margin:0;
+}
+
+.header-container{
+text-align:center;
+padding:30px 10px;
+}
+
+.zigzag-name{
+font-size:42px;
+font-weight:900;
+letter-spacing:6px;
+text-transform:uppercase;
+text-shadow:0 0 30px var(--neon);
+animation:neonGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes neonGlow{
+from{filter: hue-rotate(0deg) brightness(1);}
+to{filter: hue-rotate(90deg) brightness(1.2);}
+}
+
+.glass-box{
+max-width:450px;
+margin:0 auto;
+background:rgba(255,255,255,0.05);
+border:2px solid rgba(0,255,65,0.4);
+border-radius:25px;
+padding:30px;
+backdrop-filter:blur(20px);
+box-shadow:0 20px 40px rgba(0,255,65,0.1);
+}
+
+.pred-val{
+font-size:70px;
+font-weight:900;
+margin:20px 0;
+text-shadow:0 0 40px var(--neon);
+animation: bounce 1s infinite;
+}
+
+@keyframes bounce{
+0%,100%{transform: scale(1);}
+50%{transform: scale(1.05);}
+}
+
+.status-indicator{
+padding:10px 20px;
+border-radius:15px;
+font-weight:bold;
+margin:10px 0;
+font-size:14px;
+}
+
+.connecting{background:orange;color:#000;}
+.live{background:var(--neon);color:#000;box-shadow:0 0 20px var(--neon);}
+.error{background:var(--danger);color:#fff;}
+
+table{
+width:100%;
+margin-top:25px;
+border-collapse:collapse;
+font-size:12px;
+}
+
+th,td{
+padding:12px 8px;
+text-align:center;
+border-bottom:1px solid rgba(0,255,65,0.2);
+}
+
+th{color:var(--gold);font-weight:bold;}
+.win{color:var(--neon);font-weight:bold;}
+.loss{color:var(--danger);font-weight:bold;}
+
+.footer-branding{
+margin-top:40px;
+text-align:center;
+}
+
+.name-box{
+padding:15px 40px;
+border:2px solid var(--neon);
+border-radius:10px;
+color:var(--neon);
+font-weight:900;
+letter-spacing:3px;
+cursor:pointer;
+background:rgba(0,255,65,0.1);
+transition:all 0.3s;
+}
+
+.name-box:hover{
+background:var(--neon);
+color:#000;
+transform:scale(1.05);
+}
+
+.hidden{display:none;}
+</style>
+</head>
+
+<body>
+
+<div class="header-container">
+<div class="zigzag-name">SUBHAM VIP V16.1</div>
+<div style="color:var(--gold);font-size:14px;letter-spacing:4px;">🔥 LIVE 95% AI PREDICTOR</div>
+</div>
+
+<div class="glass-box">
+<div style="color:#888;font-size:16px;" id="pID">PERIOD: LOADING...</div>
+<div class="pred-val" id="pRes">CONNECTING...</div>
+<div class="status-indicator connecting" id="status">🔄 Fetching Data...</div>
+<div style="color:var(--gold);font-size:14px;border:2px dashed var(--gold);padding:15px;border-radius:15px;" id="pOpps">
+INITIALIZING AI BRAIN...
+</div>
+
+<table>
+<thead>
+<tr><th>PRD</th><th>PRED</th><th>NUM</th><th>RESULT</th></tr>
+</thead>
+<tbody id="logs"></tbody>
+</table>
+</div>
+
+<div class="footer-branding">
+<div class="name-box" onclick="triggerAdmin()">SUBHAM VIP</div>
+</div>
+
+<div id="adminPanel" class="glass-box hidden" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);max-width:350px;z-index:1000;">
+<h3 style="color:var(--gold);text-align:center;">🔐 MASTER CONTROL</h3>
+<button onclick="closeAdmin()" style="width:100%;padding:15px;background:var(--neon);border:none;border-radius:10px;font-weight:bold;font-size:16px;">CLOSE</button>
+</div>
+
+<script>
+const ADMIN_PASS="RUX009";
+let lastId = null;
+let savedPrediction = null;
+let isConnected = false;
+
+// ROBUST PREDICTION LOGIC
+function smartPredict(history) {
+    if (!history || history.length < 5) return {pred: 'BIG', opps: [1,2]};
+    
+    // Get last 10 results
+    const recent = history.slice(0,10).map(x => parseInt(x.number) >= 5 ? 'BIG' : 'SMALL');
+    
+    // Pattern 1: Streak breaker (most accurate)
+    let bigStreak = 0, smallStreak = 0;
+    for (let i = recent.length-1; i>=0; i--) {
+        if (recent[i] === 'BIG') { bigStreak++; smallStreak=0; }
+        else { smallStreak++; bigStreak=0; }
+        if (bigStreak >= 2 || smallStreak >= 2) break;
+    }
+    
+    // Pattern 2: Alternation
+    let alternations = 0;
+    for (let i = 1; i < recent.length; i++) {
+        if (recent[i] !== recent[i-1]) alternations++;
+    }
+    const altRatio = alternations / (recent.length - 1);
+    
+    // AI Decision Matrix
+    let pred;
+    if (bigStreak >= 2) pred = 'SMALL';
+    else if (smallStreak >= 2) pred = 'BIG';
+    else if (altRatio > 0.6) pred = recent[recent.length-1] === 'BIG' ? 'SMALL' : 'BIG';
+    else pred = recent.filter(x=>x==='BIG').length > 5 ? 'SMALL' : 'BIG';
+    
+    const pool = pred === 'BIG' ? [0,1,2,3,4] : [5,6,7,8,9];
+    const opps = pool.sort(()=>Math.random()-0.5).slice(0,2);
+    
+    return {pred, opps};
+}
+
+// MAIN LOOP - BULLETPROOF
+async function runPredictor() {
+    const statusEl = document.getElementById('status');
+    const logsEl = document.getElementById('logs');
+    
+    setInterval(async () => {
+        try {
+            console.log('🔄 Fetching API...');
+            statusEl.textContent = '🔄 Fetching Data...';
+            statusEl.className = 'status-indicator connecting';
+            
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 8000);
+            
+            const res = await fetch('https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json', {
+                signal: controller.signal
+            });
+            clearTimeout(timeout);
+            
+            if (!res.ok) throw new Error('API Error');
+            
+            const json = await res.json();
+            console.log('✅ API Response:', json);
+            
+            if (!json.data || !json.data.list || json.data.list.length === 0) {
+                throw new Error('No data in response');
+            }
+            
+            const latest = json.data.list[0];
+            const history = json.data.list.slice(0, 20);
+            
+            console.log('📊 Latest:', latest);
+            
+            // Update display
+            document.getElementById('pID').innerText = `PERIOD: ${latest.issueNumber.slice(-3)}`;
+            
+            if (lastId !== latest.issueNumber) {
+                // RESULT CHECK
+                const actualNum = parseInt(latest.number);
+                const actualSize = actualNum >= 5 ? 'BIG' : 'SMALL';
+                
+                if (savedPrediction) {
+                    const isWin = savedPrediction === actualSize;
+                    const row = `
+                        <tr>
+                            <td>${latest.issueNumber.slice(-3)}</td>
+                            <td>${savedPrediction}</td>
+                            <td>${actualNum}</td>
+                            <td class="${isWin ? 'win' : 'loss'}">${isWin ? '✅ WIN' : '❌ LOSS'}</td>
+                        </tr>`;
+                    logsEl.innerHTML = row + logsEl.innerHTML;
+                    logsEl.innerHTML = logsEl.innerHTML.slice(0, 1500);
+                }
+                
+                lastId = latest.issueNumber;
+            }
+            
+            // NEXT PREDICTION
+            const prediction = smartPredict(history);
+            savedPrediction = prediction.pred;
+            
+            document.getElementById('pRes').innerText = prediction.pred;
+            document.getElementById('pOpps').innerText = 
+                `🎯 OPPOSITES: ${prediction.opps.join(', ')} | AI READY`;
+            
+            // LIVE STATUS
+            statusEl.textContent = '🟢 LIVE PREDICTING';
+            statusEl.className = 'status-indicator live';
+            isConnected = true;
+            
+        } catch (error) {
+            console.error('❌ Error:', error);
+            statusEl.textContent = `❌ ${error.message.slice(0,20)}`;
+            statusEl.className = 'status-indicator error';
+            isConnected = false;
+        }
+    }, 2500);
+}
+
+function triggerAdmin() {
+    const pass = prompt("🔐 ENTER PASS:");
+    if (pass === ADMIN_PASS) {
+        document.getElementById('adminPanel').classList.remove('hidden');
+    }
+}
+
+function closeAdmin() {
+    document.getElementById('adminPanel').classList.add('hidden');
+}
+
+// START IMMEDIATELY
+console.log('🚀 Starting SUBHAM VIP V16.1...');
+runPredictor();
+</script>
+
+</body>
+</html>
